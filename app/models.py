@@ -16,22 +16,6 @@ class User(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
-    addresses = relationship('Address', back_populates="costumer")
-    admin= Column(Boolean, server_default='False', nullable=False)
-
-class Address(Base):
-    __tablename__ = "addresses"
-    address_id = Column(Integer, primary_key=True, nullable=False)
-    address_type = Column(String, nullable=False)
-    address_user_name = Column(String, nullable=False)
-    address_user_surname = Column(String, nullable=False)
-    address_user_phone = Column(String, nullable=False)
-    address_city = Column(String, nullable=False)
-    address_district = Column(String, nullable=False)
-    address_neighborhood = Column(String, nullable=False)
-    address = Column(String, nullable=False)
-    costumer_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    costumer = relationship('User')
 
 class Post(Base):
     __tablename__ = "posts"
@@ -55,3 +39,22 @@ class Products(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+
+class Vote(Base):
+    __tablename__="votes"
+    user_id=Column(Integer,ForeignKey("users.user_id",ondelete="CASCADE"),primary_key=True)
+    post_id=Column(Integer,ForeignKey("posts.post_id",ondelete="CASCADE"),primary_key=True)
+
+class Address(Base):
+    __tablename__ = "addresses"
+    address_id = Column(Integer, primary_key=True, nullable=False)
+    address_type = Column(String, nullable=False)
+    address_user_name = Column(String, nullable=False)
+    address_user_surname = Column(String, nullable=False)
+    address_user_phone = Column(Integer, nullable=False)
+    address_city = Column(String, nullable=False)
+    address_line = Column(String, nullable=False)
+    zipcode = Column(Integer, nullable=False)
+    customer_id = Column(Integer, ForeignKey(
+        "users.user_id", ondelete="CASCADE"), nullable=False)
+    customer = relationship('User')

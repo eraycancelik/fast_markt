@@ -1,6 +1,6 @@
 from fastapi import status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import models, schemas, database, oauth2
 
 router = APIRouter(
@@ -11,8 +11,8 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.Product])
-def get_sqlalchemy(db: Session = Depends(database.get_db)):
-    products = db.query(models.Products).all()
+def get_sqlalchemy(db: Session = Depends(database.get_db),limit: int = 10,skip: int = 0,search:Optional[str]=""):
+    products = db.query(models.Products).filter(models.Products.product_name.contains(search)).limit(limit).offset(skip).all()
     return products
 
 

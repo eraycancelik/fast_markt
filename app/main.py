@@ -6,6 +6,7 @@ from psycopg2.extras import RealDictCursor
 import routers.auth as auth_router
 import routers.products as products_router
 import routers.users as users_router
+import routers.addresses as addresses_router
 
 import database,models
 
@@ -33,7 +34,7 @@ while True:
 app.include_router(auth_router.router)
 app.include_router(products_router.router)
 app.include_router(users_router.router)
-
+app.include_router(addresses_router.router)
 
 @app.get("/")
 def say_hi():
