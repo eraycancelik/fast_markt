@@ -1,8 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic.types import conint
-
 # Her Post işleminde status_code=201 ile 201 kodu döndürülür.
 # BaseModel: Pydantic kütüphanesinden gelen bir sınıf. Pydantic, veri doğrulama ve serielleştirme için kullanılır.
 # BaseModel sınıfından türetilen sınıflar, Pydantic tarafından otomatik olarak doğrulanır ve serielleştirilir.
@@ -19,6 +18,16 @@ class UserCreate(BaseModel):
     class Config:
         orm_mode = True
 
+class UserDetail(BaseModel):
+    name: str
+    surname: str
+    email: EmailStr
+    phone: int
+    admin: bool
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
 
 class UserInfo(BaseModel):
     name: str
@@ -104,13 +113,22 @@ class AddressBase(BaseModel):
     address_type: str
     address_user_name: str
     address_user_surname: str
-    address_user_phone: int
+    address_user_phone: str
     address_city: str
     address_line: str
     zipcode: int
+
+class AddressCreate(AddressBase):
+    pass
+
 class Address(AddressBase):
     address_id: int
     customer_id: int
     customer: UserOut
     class Config:
         orm_mode = True
+
+class UserList(BaseModel):
+    user_list: List[UserOut]
+class UserInf(BaseModel):
+    user: UserOut

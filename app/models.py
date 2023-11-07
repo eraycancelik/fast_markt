@@ -16,6 +16,7 @@ class User(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+    admin = Column(Boolean, server_default='False', nullable=False)
 
 class Post(Base):
     __tablename__ = "posts"
@@ -26,7 +27,6 @@ class Post(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     owner_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     owner = relationship("User")
-
 class Products(Base):
     __tablename__ = "products"
     product_id = Column(Integer, primary_key=True, index=True, nullable=False)
@@ -51,7 +51,7 @@ class Address(Base):
     address_type = Column(String, nullable=False)
     address_user_name = Column(String, nullable=False)
     address_user_surname = Column(String, nullable=False)
-    address_user_phone = Column(Integer, nullable=False)
+    address_user_phone = Column(String, nullable=False)
     address_city = Column(String, nullable=False)
     address_line = Column(String, nullable=False)
     zipcode = Column(Integer, nullable=False)
