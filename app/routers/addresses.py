@@ -12,8 +12,7 @@ router = APIRouter(
 )
 @router.get("/", response_model=List[schemas.Address])
 def get_addresses(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    print(current_user.name, current_user.surname)
-    addresses = db.query(models.Address).filter(models.Address.customer_id == current_user.user_id).all()
+    addresses = db.query(models.Address,).filter(models.Address.customer_id == current_user.user_id).all()
     return addresses
 
 @router.post("/", response_model=schemas.Address, status_code=status.HTTP_201_CREATED)

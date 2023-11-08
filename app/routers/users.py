@@ -35,10 +35,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
 
 @router.get("/", response_model=schemas.UserOut)
 def get_users(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
-    if current_user.admin == True:
-        users=db.query(models.User).all()
-    else:
-        users=db.query(models.User).filter(models.User.user_id == current_user.user_id).first()
+    users=db.query(models.User).filter(models.User.user_id == current_user.user_id).first()
     return users
 
 
@@ -46,12 +43,13 @@ def get_users(db: Session = Depends(database.get_db), current_user: int = Depend
 
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(database.get_db),current_user: int = Depends(oauth2.get_current_user)):
-    if (current_user.admin == False) or (current_user.user_id != user_id):
+    if (current_user.admin == True) or (current_user.user_id == user_id):
+        user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"User with id:{current_user.user_id} is not authorized to delete a user",
         )
-    user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
