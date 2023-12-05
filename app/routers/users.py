@@ -1,10 +1,9 @@
 from fastapi import status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from typing import List,Union
-from fastapi.responses import JSONResponse
+from typing import List
 
-
-import models, schemas, utils, database, oauth2
+from .. import models, schemas, utils, database
+from ..oauth2 import get_current_user
 
 router = APIRouter(
     prefix="/user",
@@ -33,23 +32,17 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
     return new_user
 
 
-@router.get("/", response_model=schemas.UserOut)
-def get_users(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
-    users=db.query(models.User).filter(models.User.user_id == current_user.user_id).first()
+@router.get("/", response_model=List[schemas.UserOut])
+def get_users(db: Session = Depends(database.get_db)):
+    users = db.query(models.User).all()
     return users
 
 
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(database.get_db),current_user: int = Depends(oauth2.get_current_user)):
-    if (current_user.admin == True) or (current_user.user_id == user_id):
-        user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"User with id:{current_user.user_id} is not authorized to delete a user",
-        )
+def delete_user(user_id: int, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

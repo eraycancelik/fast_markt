@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.orm import relationship
 
-from database import Base
+from .database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -16,17 +16,8 @@ class User(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
-    admin = Column(Boolean, server_default='False', nullable=False)
 
-class Post(Base):
-    __tablename__ = "posts"
-    post_id=Column(Integer, primary_key=True, nullable=False)
-    title=Column(String, nullable=False)
-    content=Column(String, nullable=False)
-    published=Column(Boolean, server_default="True", nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
-    owner_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
-    owner = relationship("User")
+
 class Products(Base):
     __tablename__ = "products"
     product_id = Column(Integer, primary_key=True, index=True, nullable=False)
@@ -39,11 +30,6 @@ class Products(Base):
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
-
-class Vote(Base):
-    __tablename__="votes"
-    user_id=Column(Integer,ForeignKey("users.user_id",ondelete="CASCADE"),primary_key=True)
-    post_id=Column(Integer,ForeignKey("posts.post_id",ondelete="CASCADE"),primary_key=True)
 
 class Address(Base):
     __tablename__ = "addresses"
