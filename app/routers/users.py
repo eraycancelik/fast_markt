@@ -2,7 +2,7 @@ from fastapi import status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from typing import List
 
-from .. import models, schemas, utils, database
+from .. import models, schemas, utils, database, oauth2
 from ..oauth2 import get_current_user
 
 router = APIRouter(
@@ -32,21 +32,32 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
     return new_user
 
 
-@router.get("/", response_model=List[schemas.UserOut])
-def get_users(db: Session = Depends(database.get_db)):
-    users = db.query(models.User).all()
-    return users
-
-
+@router.get("/", response_model=schemas.UserOut)
+def get_users(
+    db: Session = Depends(database.get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
+    user = (
+        db.query(models.User)
+        .filter(models.User.user_id == current_user.user_id)
+        .first()
+    )
+    print(user.user_id)
+    return user
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(database.get_db)):
+def delete_user(
+    user_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: int = Depends(oauth2.get_current_user),
+):
     user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    if not user:
+    online_user_id = current_user.user_id
+    if (not user) or online_user_id != user.user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id:{user_id} was not found",
+            detail="User was not found",
         )
     db.delete(user)
     db.commit()

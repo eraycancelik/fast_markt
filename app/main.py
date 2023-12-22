@@ -21,4 +21,5 @@ app.include_router(addresses.router)
 
 @app.get("/")
 def root():
-    return {"message": "server is running"}
+    return {"message": "server is running on docker testasdasd"}
+
