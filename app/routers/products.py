@@ -11,8 +11,19 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.Product])
-def get_sqlalchemy(db: Session = Depends(database.get_db),limit: int = 20,skip: int = 0,search:Optional[str]=""):
-    products = db.query(models.Products).filter(models.Products.product_name.contains(search)).limit(limit).offset(skip).all()
+def get_sqlalchemy(
+    db: Session = Depends(database.get_db),
+    limit: int = 20,
+    skip: int = 0,
+    search: Optional[str] = "",
+):
+    products = (
+        db.query(models.Products)
+        .filter(models.Products.product_name.contains(search))
+        .limit(limit)
+        .offset(skip)
+        .all()
+    )
     return products
 
 
@@ -39,7 +50,7 @@ def create_product(
     db: Session = Depends(database.get_db),
     current_user: int = Depends(oauth2.get_current_user),
 ):
-    if current_user.admin == False:
+    if current_user.email != "admin@gmail.com":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"User with id:{current_user.user_id} is not authorized to create a product",
@@ -58,7 +69,12 @@ def delete_product(
     current_user: int = Depends(oauth2.get_current_user),
 ):
     print(current_user)
-    if current_user.admin == False:
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id:{product_id} was not found",
+        )
+    elif current_user.email != "admin@gmail.com":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"User with id:{current_user.user_id} is not authorized to delete this product",
@@ -68,11 +84,7 @@ def delete_product(
         .filter(models.Products.product_id == product_id)
         .first()
     )
-    if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Product with id:{product_id} was not found",
-        )
+
     db.delete(product)
     db.commit()
     return {"data": "Product deleted successfully"}

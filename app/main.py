@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import auth, users, products, addresses
 
 
-#models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
-origins=["*"]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -19,7 +19,7 @@ app.include_router(users.router)
 app.include_router(products.router)
 app.include_router(addresses.router)
 
+
 @app.get("/")
 def root():
-    return {"message": "server is running on docker testasdasd"}
-
+    return {"message": "server is running on docker"}
